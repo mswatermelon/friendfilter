@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Другофильтр</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+    <script src="http://vk.com/js/api/openapi.js" type="text/javascript"></script>
+    <style>
+        @import url(http://fonts.googleapis.com/css?family=Fira+Sans:500);
+
+        body {
+            background-color: rgba(0,0,0,0.4);
+            font-family: 'Fira Sans';
+        }
+        ul{
+            height: 320px;
+            overflow: auto;
+            margin: 0;
+            list-style-type: none;
+            padding: 10px;
+        }
+        li{
+            display: block;
+            height: 65px;
+            line-height: 65px;
+            color: #4f4f4f;
+            width: 100%;
+            background: url("img/split.png") no-repeat bottom;
+        }
+        li:hover{
+            background-color: #f0f0f0;
+        }
+        li img {
+            vertical-align: middle;
+        }
+        table tr {
+            color: #4f4f4f;
+        }
+        table td {
+            min-width: 297px;
+        }
+        #friendsTable {
+            width: 100%;
+            font-size: 10pt;
+            padding: 10px;
+            position: absolute;
+            top:90px;
+        }
+        #headerInfo {
+            width: 102px;
+            height: 24px;
+            margin: 30px auto;
+            background-image: url("img/friend_header.png");
+        }
+        #results {
+            width: 620px;
+            height: 490px;
+            position: absolute;
+            top:0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+            background-image: url("img/background.png");
+        }
+        #topHeader {
+            width: 100%;
+            height: 45px;
+            color: white;
+            position: absolute;
+            top: 0;
+            background-image: url("img/top_header.png");
+        }
+        #topHeader:after {
+            content: '';
+            position: relative;
+            top: 15px;
+            float: right;
+            border-top: 7px solid #FFFFFF;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+        }
+        #findHeader {
+            width: 100%;
+            height: 45px;
+            position: absolute;
+            top: 45px;
+            background-image: url("img/find_header.png");
+        }
+        #bottomHeader {
+            width: 100%;
+            height: 45px;
+            position: absolute;
+            bottom: 0;
+            background-image: url("img/bottom_header.png");
+        }
+        .findName {
+            width: 285px;
+            box-sizing: border-box;
+            border: 2px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 10px 0 10px 15px;
+            background-color: white;
+            background-image: url('img/find_icon.png');
+            background-position: 10px 6px;
+            background-repeat: no-repeat;
+            padding: 6px 20px 6px 40px;
+            transition: width 0.4s ease-in-out;
+            color: #c4c4c4;
+        }
+        #checkFriend {
+            margin: 15px;
+        }
+        .icon {
+            border-radius: 50%;
+            margin: auto;
+        }
+        .name {
+            margin: auto;
+        }
+        .scroll {
+            background: url("img/split.png") no-repeat 0 0;
+        }
+        .closeButton{
+            display:block;
+            position:absolute;
+            top:15px;
+            right:15px;
+            width:14px;
+            height:14px;
+            cursor: pointer;
+            background:url('img/main_x.png') no-repeat center center;
+        }
+        .changeButton{
+            display:block;
+            position:relative;
+            top:-40px;
+            left: 255px;
+            width:14px;
+            height:14px;
+            cursor: pointer;
+        }
+        #friendList .changeButton{
+            background:url('img/plus.png') no-repeat center center;
+        }
+        #friendListChecked .changeButton{
+            background:url('img/x.png') no-repeat center center;
+        }
+        .saveButton{
+            display:block;
+            position:absolute;
+            top:8px;
+            right:15px;
+            width:87px;
+            height:30px;
+            color: #FFFFFF;
+            font-size: 10pt;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+            outline: none;
+            border: none;
+            border-radius: 25px;
+            background:url('img/save_button.png') no-repeat center center;
+        }
+        .saveButton:active {
+            box-shadow: 0 2px #4f4f4f;
+            transform: translateY(2px);
+        }
+        .firstColumn {
+            border-right: 1px solid #efefef;
+        }
+        ::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+        }
+        ::-webkit-scrollbar-button {
+            width: 0;
+            height: 0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c4c4c4;
+            border: 0 none #ffffff;
+            border-radius: 50px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c4c4c4;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #c4c4c4;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffffff;
+            border: 0 none #ffffff;
+            border-radius: 50px;
+        }
+        ::-webkit-scrollbar-track:hover {
+            background: #ffffff;
+        }
+        ::-webkit-scrollbar-track:active {
+            background: #ffffff;
+        }
+        ::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="headerInfo"></div>
+    <div id="results"></div>
+</div>
+<script type="text/javascript" src="main.js"></script>
+<script type="text/x-handlebars-template" id="main-template">
+    <div id="topHeader">
+        <a class="closeButton"></a>
+        <p id="checkFriend">Выберите друзей</p>
+    </div>
+    <div id="findHeader">
+        <input type="text" class="findName" id="friendName" value="Начните вводить имя друга">
+        <input type="text" class="findName" id="groupName" value="Начните вводить имя друга">
+    </div>
+    <table id="friendsTable">
+        <tr>
+            <td class="firstColumn">Ваши друзья</td>
+            <td>Друзья в списке</td>
+        </tr>
+        <tr class="scroll">
+            <td class="firstColumn">
+                <ul id="friendList">
+                    {{#each list}}
+                    <li class="name" id="{{id}}">
+                        <img class="icon" src="{{photo_50}}">
+                        {{concat first_name last_name}}
+                        <a class="changeButton"></a>
+                    </li>
+                    {{/each}}
+                </ul>
+            </td>
+            <td>
+                <ul id="friendListChecked">
+                    {{#each checkedList}}
+                    <li class="name" id="{{id}}">
+                        <img class="icon" src="{{photo_50}}">
+                        {{concat first_name last_name}}
+                        <a class="changeButton"></a>
+                    </li>
+                    {{/each}}
+                </ul>
+            </td>
+        </tr>
+    </table>
+    <div id="bottomHeader">
+        <button class="saveButton">Сохранить</button>
+    </div>
+</script>
+</body>
+</html>
