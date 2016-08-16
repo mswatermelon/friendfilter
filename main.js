@@ -100,13 +100,17 @@ new Promise(function (resolve) {
         })
     });
 }).then(function (friendsWDate) {
+    // Инициализация основных переменных
     let resultDiv = document.getElementById("results"),
         friendList = document.getElementById("friendList"),
         friendListChecked = document.getElementById("friendListChecked"),
         checkedFriends = [];
 
+    // Функция, скрывающая друга из списка или открывающая
     let hideShow = function (e, liFriendListChecked) {
         for (let i = 0; i < liFriendListChecked.length; i++) {
+            // Если в имени друга есть строка, введенная в поиск - скрыть элемент
+            // Иначе открыть
             if (liFriendListChecked[i].textContent.toLowerCase().indexOf(e.target.value.toLowerCase()) == -1) {
                 liFriendListChecked[i].style.display = "none";
             }
@@ -114,6 +118,7 @@ new Promise(function (resolve) {
         }
     };
 
+    // Событие по клику на элементы главного содержимого страницы
     resultDiv.addEventListener('click', function (e) {
         let mainTarget = e.target,
             friendList = document.getElementById("friendList"),
@@ -121,21 +126,28 @@ new Promise(function (resolve) {
             friendName = document.getElementById("friendName"),
             groupName = document.getElementById("groupName");
 
+        // Если это кнопка + или x
         if(mainTarget.getAttribute("class") == "changeButton"){
+            // Если это +
             if(mainTarget.closest("ul").getAttribute("id") == "friendList"){
+                // Удалить элемент с информацией о друге из одного списка и включить в список выбранных
                 mainTarget.parentElement.parentElement.removeChild(mainTarget.parentElement);
                 friendListChecked.appendChild(mainTarget.parentElement);
                 for (let i = 0; i < friendsWDate.length; i++) {
+                    // Удалить друга из списка друзей и добавить в другой
                     if(friendsWDate[i].id == mainTarget.parentElement.getAttribute('id')){
                         checkedFriends.push(friendsWDate[i]);
                         friendsWDate.splice(i,1);
                     }
                 }
             }
+            // Иначе x
             else if(mainTarget.closest("ul").getAttribute("id") == "friendListChecked"){
+                // Удалить элемент с информацией о друге из списка выбранных друзей и включить в список друзей
                 mainTarget.parentElement.parentElement.removeChild(mainTarget.parentElement);
                 friendList.appendChild(mainTarget.parentElement);
                 for (let i = 0; i < checkedFriends.length; i++) {
+                    // Удалить друга из списка друзей и добавить в другой
                     if (checkedFriends[i].id == mainTarget.parentElement.getAttribute('id')) {
                         friendsWDate.push(checkedFriends[i]);
                         checkedFriends.splice(i, 1);
@@ -144,35 +156,43 @@ new Promise(function (resolve) {
             }
         }
         else if(mainTarget.getAttribute("class") == "saveButton"){
+            // При нажатии на кнопку "Сохранить" сохранить список друзей
+            // и список выбранных друзей в localStorage
             window.localStorage.friendsWDate = JSON.stringify(friendsWDate);
             window.localStorage.checkedFriends = JSON.stringify(checkedFriends);
         }
     });
 
+    // Реализация Drag-and-drop
     resultDiv.addEventListener('mousedown', function (e) {
+        // Инициализация цели события
         let mainTarget = e.target,
             offsetX = e.offsetX,
             offsetY = e.offsetY;
 
+        // Если это элемент списка с классом name
         if(mainTarget.getAttribute("class") == "name"){
+            // Создать новый div и объявить функции для события
             let element = document.createElement('div'),
             getPosition = (el) => {
                 var xPos = 0;
                 var yPos = 0;
 
                 while (el) {
-                    // for all other non-BODY elements
+                    // Для всех родителей элемента просчитать top и left
                     xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
                     yPos += (el.offsetTop - el.scrollTop + el.clientTop);
 
                     el = el.offsetParent;
                 }
+
                 return {
                     x: xPos,
                     y: yPos
                 };
             },
             mouseMve = (e) => {
+                // Двигать элмент вслед за мышью
                 if (element) {
                     element.style.top = (e.clientY - offsetY) + 'px';
                     element.style.left = (e.clientX - offsetX) + 'px';
@@ -181,10 +201,14 @@ new Promise(function (resolve) {
             mouseUp = (e) => {
                 let position = getPosition(friendListChecked);
 
+                // Если мышь окажеться в области списка выбранных друзей
                 if (e.clientX > position.x && e.clientY > position.y
                     && e.clientX < position.x + friendListChecked.offsetHeight
                     && e.clientY < position.y + friendListChecked.offsetWidth){
+                    // Инициализировать клик мыши по +
+                    // Это позволит добавить друга из списка друзей в в список выбранных друзей
                     var evt = document.createEvent("MouseEvents");
+
                     evt.initMouseEvent("click", true, true, window, 1, 0, 0, 0, 0,
                         false, false, false, false, 0, null);
 
@@ -194,25 +218,32 @@ new Promise(function (resolve) {
             };
 
             element.style.backgroundColor = "white";
+            // Расположить div там же где и элемент, отвечающий за друга
             element.style.position = "absolute";
             element.style.width = mainTarget.offsetWidth + 'px';
             element.style.height = mainTarget.offsetHeight + 'px';
             element.style.top = (e.clientY - e.offsetY) + 'px';
             element.style.left = (e.clientX - e.offsetX) + 'px';
 
+            // Скопировать элемент, отвечающий за друга и вставить в новый div
             element.innerHTML = mainTarget.outerHTML;
+            // Добавить элемент на страницу
             document.body.appendChild(element);
+
+            // Назначить события для элемента
             element.addEventListener("mousemove", mouseMve);
             element.addEventListener("mouseup", mouseUp);
         }
     });
 
+    // Событие на ввод значения в список друзей
     friendName.addEventListener("input", (e) => {
         let liFriendListChecked = friendList.children;
 
         hideShow(e, liFriendListChecked);
     });
 
+    // Событие на ввод значения в список выбранных друзей
     groupName.addEventListener("input", (e) => {
         let liFriendListChecked = friendListChecked.children;
 
